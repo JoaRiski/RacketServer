@@ -8,14 +8,17 @@ class HapticFeedbackServer:
         self.port = port
 
     async def handle(self, reader, writer):
-        data = await reader.read(100)
-        message = data.decode()
-        addr = writer.get_extra_info('peername')
-        print("Received %r from %r" % (message, addr))
+        while True:
+            data = await reader.read(100)
+            message = data.decode()
+            addr = writer.get_extra_info('peername')
+            print("Received %r from %r" % (message, addr))
 
-        print("Send: %r" % message)
-        writer.write(data)
-        await writer.drain()
+            print("Send: %r" % message)
+            writer.write(data)
+            await writer.drain()
+            if not data:
+                break
 
         print("Close the client socket")
         writer.close()

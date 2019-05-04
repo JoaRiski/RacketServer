@@ -8,15 +8,14 @@ class BodyTrackingServer:
         self.port = port
 
     async def handle(self, reader, writer):
-        while True:
-            data = await reader.read(100)
-            message = data.decode()
-            addr = writer.get_extra_info('peername')
-            print("Received %r from %r" % (message, addr))
+        data = await reader.read(100)
+        message = data.decode()
+        addr = writer.get_extra_info('peername')
+        print("Received %r from %r" % (message, addr))
 
-            print("Send: %r" % message)
-            writer.write(data)
-            await writer.drain()
+        print("Send: %r" % message)
+        writer.write(data)
+        await writer.drain()
 
         print("Close the client socket")
         writer.close()

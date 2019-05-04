@@ -1,7 +1,14 @@
+import sys
 import asyncio
 
 from .body_tracking_server import BodyTrackingServer
 from .haptic_feedback_server import HapticFeedbackServer
+
+
+# We need to do this or Ctrl-C signal isn't processed
+async def default_loop():
+    while True:
+        await asyncio.sleep(0.5)
 
 
 class RacketServer:
@@ -18,6 +25,11 @@ class RacketServer:
         self.event_loop.run_until_complete(
             self.body_tracking_server.get_task(self.event_loop)
         )
+        self.event_loop.create_task(default_loop())
         print("Running on 0.0.0.0 on ports 8888 and 8889")
-        self.event_loop.run_forever()
+        try:
+            self.event_loop.run_forever()
+        except KeyboardInterrupt:
+            print("Stopping...")
+            self.event_loop.stop()
 
