@@ -83,7 +83,7 @@ class FrameFollower:
         }
         if all(ok for ok, _ in results.values()):
             self._current_state_idx += 1
-        return {key: direction for key, (_, direction) in results.items()}
+        return results
 
 
 class Follower:
@@ -101,5 +101,4 @@ class Follower:
             state - point, state - self._previous
         ) / np.linalg.norm(self._previous - point) < self._radius
         self._previous = point
-        print(ok)
         return (ok, state - self._previous)
