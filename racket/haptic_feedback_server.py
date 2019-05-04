@@ -29,7 +29,6 @@ class HapticFeedbackServer:
                 0 if message["Right_Wrist"][0] else 255,
             ])
             writer.write(data)
-            print(f"Sending {data}")
 
             await writer.drain()
 

@@ -75,6 +75,7 @@ def make_final_models(keys, origo='Right_Shoulder', scale='Right_Elbow'):
 
 class FrameFollower:
     def __init__(self, keys, curves, radius=0.01, step=0.01):
+        self.step = step
         self._followers = {
             key: Follower(curves[key], radius=radius, step=step) for key in keys
         }
@@ -88,14 +89,15 @@ class FrameFollower:
         }
         if all(ok for ok, _ in results.values()):
             self._current_state_idx += 1
-        step_count = 1 / step
+        step_count = 1 / self.step
         if self._current_state_idx >= step_count:
-            self._current_state_idx -= step_count
+            self._current_state_idx = 0
+        print(f"Current index: {self._current_state_idx}")
         return results
 
 
 class Follower:
-    def __init__(self, curve, radius=0.01, step=0.01):
+    def __init__(self, curve, radius=0.001, step=0.01):
         _params = np.arange(0, 1, step) + step
         self._states = [curve(p) for p in _params]
 

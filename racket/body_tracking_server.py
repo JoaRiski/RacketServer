@@ -20,7 +20,6 @@ pygame.display.flip()
 def to_pos(json):
     return np.array([json['x'], json['y']])
 
-
 class BodyTrackingProtocol:
     def __init__(self, feedback_server):
         self._feedback_server = feedback_server
