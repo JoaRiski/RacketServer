@@ -11,18 +11,22 @@ def to_pos(json):
     return np.array([json['x'], json['y']])
 
 
-class BodyTrackingServer:
-    def __init__(self, host, port, feedback_server):
-        self.host = host
-        self.port = port
-
+class BodyTrackingProtocol:
+    def __init__(self, feedback_server):
         self._feedback_server = feedback_server
 
         self._models = models.make_final_models(KEYS, origo=ORIGO)
         self._follower = models.FrameFollower(KEYS, self._models)
 
-    async def handle(self, reader, writer):
-        data = await reader.read()
+    def connection_made(self, transport):
+        self.transport = transport
+
+    def datagram_received(self, data, addr):
+        asyncio.ensure_future(
+            self._datagram_received(data, addr), loop=asyncio.get_running_loop()
+        )
+
+    async def _datagram_received(self, data, addr):
         message = data.decode()
         frame = json.loads(message)
 
@@ -34,9 +38,15 @@ class BodyTrackingServer:
         data = self._follower.test(points)
         await self._feedback_server.messages.put(data)
 
-        writer.close()
-
-    def get_task(self, event_loop):
-        return asyncio.start_server(
-            self.handle, self.host, self.port, loop=event_loop
+    @staticmethod
+    async def main(loop, feedback_server):
+        transport, _ = await loop.create_datagram_endpoint(
+            lambda: BodyTrackingProtocol(feedback_server),
+            local_addr=("10.100.41.154", 8888),
         )
+
+        try:
+            print('Record server running at port 8888')
+            await asyncio.sleep(3600)
+        finally:
+            transport.close()
