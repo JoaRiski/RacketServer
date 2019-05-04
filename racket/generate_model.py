@@ -53,13 +53,12 @@ def make_interpolation_by_T(x, y, t):
     return interpolation
 
 
-def make_final_models(keys):
+def make_final_models(keys, origo='Right_Elbow'):
     models = {}
     for key in keys:
         interps = []
         for i in range(1, 18):
-            x_, y_, t_ = getdata(i, key='Right_Wrist')
-            # plt.plot(x_, y_, linestyle='dashed', linewidth=1)
+            x_, y_, t_ = getdata(i, key=key, origo=origo)
             interps.append(make_interpolation_by_L2(x_, y_, t_))
 
         models[key] = lambda p: sum(interp(p) for interp in interps) / len(
