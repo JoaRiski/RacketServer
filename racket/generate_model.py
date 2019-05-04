@@ -70,8 +70,8 @@ def make_final_models(keys, origo='Right_Elbow'):
 class FrameFollower:
     def __init__(self, keys, curves, radius=0.01, step=0.01):
         self._followers = {
-            keys[i]: Follower(curves[i], radius=radius, step=step)
-            for i in range(len(keys))
+            key: Follower(curves[key], radius=radius, step=step)
+            for key in range(keys)
         }
         self._keys = keys
         self._current_state_idx = 0
