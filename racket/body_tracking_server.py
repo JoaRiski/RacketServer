@@ -32,7 +32,7 @@ class BodyTrackingProtocol:
         frame = json.loads(message)
 
         points = {}
-        scale = np.linalg.norm(to_pos(frame[ORIGO] - frame[SCALE]))
+        scale = np.linalg.norm(to_pos(frame[ORIGO]) - to_pos(frame[SCALE]))
         for key in KEYS:
             pos = (to_pos(frame[key]) - to_pos(frame[ORIGO])) / scale
             points[key] = pos
