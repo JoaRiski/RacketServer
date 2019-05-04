@@ -17,7 +17,6 @@ class HapticFeedbackServer:
 
         while True:
             message = await self.messages.get()
-
             # print(message)
 
             data = bytes([

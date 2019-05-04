@@ -98,12 +98,18 @@ class Follower:
         self._previous = np.array([0, 0])
 
     def test(self, point, state_idx):
-        state = self._states[state_idx]
-        ok = (
-            np.linalg.norm(self._previous - point) > 0
-            and np.cross(state - point, state - self._previous)
-            / np.linalg.norm(self._previous - point)
-            < self._radius
-        )
-        self._previous = point
-        return (ok, state - self._previous)
+        try:
+            state = self._states[state_idx]
+            ok = (
+                np.linalg.norm(self._previous - point) > 0
+                and np.cross(state - point, state - self._previous)
+                / np.linalg.norm(self._previous - point)
+                < self._radius
+            )
+            self._previous = point
+            return (ok, state - self._previous)
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            print(state_idx)
+            print(len(self._states))
