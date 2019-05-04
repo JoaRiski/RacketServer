@@ -1,5 +1,4 @@
 import random
-import queue
 import asyncio
 
 
@@ -9,21 +8,20 @@ class HapticFeedbackServer:
         self.host = host
         self.port = port
 
-        self.messages = queue.Queue()
+        self.messages = asyncio.Queue()
 
     async def handle(self, reader, writer):
         addr = writer.get_extra_info("peername")
         print(f"Received a new connection from {addr}")
 
         for i in range(20):
-            message = self.messages.get()
+            message = await self.messages.get()
 
             # TODO map to motors
 
             writer.write(message)
 
             await writer.drain()
-            await asyncio.sleep(1)
 
         print("Closes a client socket")
         writer.close()

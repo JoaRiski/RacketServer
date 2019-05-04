@@ -32,7 +32,7 @@ class BodyTrackingServer:
             direction = follower.test(to_pos(frame[key]))
             data[key] = direction
 
-        self._feedback_server.messages.put(data)
+        await self._feedback_server.messages.put(data)
 
         writer.close()
 
