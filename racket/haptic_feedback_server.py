@@ -1,3 +1,4 @@
+import random
 import asyncio
 
 
@@ -8,19 +9,17 @@ class HapticFeedbackServer:
         self.port = port
 
     async def handle(self, reader, writer):
-        while True:
-            data = await reader.read(100)
-            message = data.decode()
-            addr = writer.get_extra_info('peername')
-            print("Received %r from %r" % (message, addr))
+        addr = writer.get_extra_info("peername")
+        print(f"Received a new connection from {addr}")
 
-            print("Send: %r" % message)
-            writer.write(data)
+        for i in range(20):
+            message = bytes([random.choice([0, 255]) for i in range(8)])
+            writer.write(message)
+
             await writer.drain()
-            if not data:
-                break
+            await asyncio.sleep(1)
 
-        print("Close the client socket")
+        print("Closes a client socket")
         writer.close()
 
     def get_task(self, event_loop):
