@@ -1,6 +1,6 @@
 import asyncio
 import json
-import generate_model as models
+from . import generate_model as models
 import numpy as np
 
 ORIGO = 'Right_Shoulder'
