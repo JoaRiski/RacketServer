@@ -95,7 +95,7 @@ class Follower:
 
         self._previous = np.array([0, 0])
 
-    def test_lerp(self, point, state_idx):
+    def test(self, point, state_idx):
         state = self._states[state_idx]
         ok = np.linalg.norm(self._previous - point) > 0 and np.cross(
             state - point, state - self._previous
