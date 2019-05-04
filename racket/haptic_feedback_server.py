@@ -20,14 +20,14 @@ class HapticFeedbackServer:
             # print(message)
 
             data = bytes([
-                0,
-                0,
-                0,
-                0,
-                0,
                 255 if message["Right_Elbow"][0] is False else 0,
-                255 if message["Right_Wrist"][0] is False else 0,
+                255 if message["Right_Elbow"][0] is False else 0,
                 0,
+                0,
+                0,
+                0,
+                255 if message["Right_Wrist"][0] is False else 0,
+                255 if message["Right_Wrist"][0] is False else 0,
             ])
             writer.write(data)
             print(f"Sending {data}")
