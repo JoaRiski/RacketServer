@@ -67,29 +67,38 @@ def make_final_models(keys, origo='Right_Elbow'):
     return models
 
 
+class FrameFollower:
+    def __init__(self, keys, curves, radius=0.01, step=0.01):
+        self._followers = {
+            keys[i]: Follower(curves[i], radius=radius, step=step)
+            for i in range(len(keys))
+        }
+        self._keys = keys
+        self._current_state_idx = 0
+
+    def test(self, points):
+        results = {
+            key: follower.test(points[key], self._current_state_idx)
+            for key, follower in self._followers.items()
+        }
+        if all(ok for ok, _ in results.values()):
+            self._current_state_idx += 1
+        return {key: direction for key, (_, direction) in results}
+
+
 class Follower:
     def __init__(self, curve, radius=0.01, step=0.01):
         _params = np.arange(0, 1, step) + step
         self._states = [curve(p) for p in _params]
-        self._current_state_idx = 0
 
         self._radius = radius
 
         self._previous = np.array([0, 0])
 
-    @property
-    def state(self):
-        return self._states[self._current_state_idx]
-
-    def test_lerp(self, point):
-        if np.linalg.norm(self._previous - point) > 0 and np.cross(
-            self.state - point, self.state - self._previous
-        ) / np.linalg.norm(self._previous - point):
-            self._current_state_idx += 1
+    def test_lerp(self, point, state_idx):
+        state = self._states[state_idx]
+        ok = np.linalg.norm(self._previous - point) > 0 and np.cross(
+            state - point, state - self._previous
+        ) / np.linalg.norm(self._previous - point)
         self._previous = point
-        return self.state - self._previous
-
-    def test(self, point):
-        if np.linalg.norm(self.state - point) < self._radius:
-            self._current_state_idx += 1
-        return self.state - point
+        return (ok, state - self._previous)

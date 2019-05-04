@@ -1,12 +1,15 @@
 import asyncio
 import json
 import generate_model as models
+import numpy as np
 
 ORIGO = 'Right_Shoulder'
 KEYS = ['Right_Elbow', 'Right_Wrist']
 
+
 def to_pos(json):
     return np.array([json['x'], json['y']])
+
 
 class BodyTrackingServer:
     def __init__(self, host, port, feedback_server):
@@ -29,7 +32,8 @@ class BodyTrackingServer:
 
         for key in KEYS:
             follower = self._followers[key]
-            direction = follower.test(to_pos(frame[key]))
+            pos = to_pos(frame[key]) - to_pos(frame[ORIGO])
+            direction = follower.test(pos)
             data[key] = direction
 
         await self._feedback_server.messages.put(data)
