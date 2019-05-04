@@ -12,11 +12,12 @@ async def default_loop():
 
 
 class RacketServer:
-
     def __init__(self):
         self.event_loop = asyncio.get_event_loop()
         self.haptic_feedback_server = HapticFeedbackServer("0.0.0.0", 8889)
-        self.body_tracking_server = BodyTrackingServer("0.0.0.0", 8888)
+        self.body_tracking_server = BodyTrackingServer(
+            "0.0.0.0", 8888, self.haptic_feedback_server
+        )
 
     def launch(self):
         self.event_loop.run_until_complete(
@@ -32,4 +33,3 @@ class RacketServer:
         except KeyboardInterrupt:
             print("Stopping...")
             self.event_loop.stop()
-
