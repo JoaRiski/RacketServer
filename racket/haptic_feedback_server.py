@@ -17,11 +17,13 @@ class HapticFeedbackServer:
         for i in range(20):
             message = await self.messages.get()
 
-            # TODO map to motors
+            print(message)
 
             writer.write(message)
+            # writer.write(bytes([255, 255 ,255 ,255 ,255 ,255 ,255 ,255]))
 
             await writer.drain()
+            await asyncio.sleep(1)
 
         print("Closes a client socket")
         writer.close()
