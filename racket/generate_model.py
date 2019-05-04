@@ -65,3 +65,31 @@ def make_final_models(keys, origo='Right_Elbow'):
             interps
         )
     return models
+
+
+class Follower:
+    def __init__(self, curve, radius=0.01, step=0.01):
+        _params = np.arange(0, 1, step) + step
+        self._states = [curve(p) for p in _params]
+        self._current_state_idx = 0
+
+        self._radius = radius
+
+        self._previous = np.array([0, 0])
+
+    @property
+    def state(self):
+        return self._states[self._current_state_idx]
+
+    def test_lerp(self, point):
+        if np.linalg.norm(self._previous - point) > 0 and np.cross(
+            self.state - point, self.state - self._previous
+        ) / np.linalg.norm(self._previous - point):
+            self._current_state_idx += 1
+        self._previous = point
+        return self.state - self._previous
+
+    def test(self, point):
+        if np.linalg.norm(self.state - point) < self._radius:
+            self._current_state_idx += 1
+        return self.state - point
