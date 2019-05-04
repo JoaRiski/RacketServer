@@ -2,11 +2,14 @@ import numpy as np
 import json
 
 
-def getdata(idx, key='Right_Wrist', origo='Right_Shoulder'):
+def getdata(
+    idx, key='Right_Wrist', origo='Right_Shoulder', scale='Right_Elbow'
+):
     data = json.load(open(f'data/data-{idx}.json', 'r'))
     data = sorted(data, key=lambda f: f['time'])
-    y = [f[key]['y'] - f[origo]['y'] for f in data]
-    x = [f[key]['x'] - f[origo]['x'] for f in data]
+    scale = np.linalg.norm(f[scale] - f[origo])
+    y = [(f[key]['y'] - f[origo]['y']) / scale for f in data]
+    x = [(f[key]['x'] - f[origo]['x']) / scale for f in data]
     t = [f['time'] - data[0]['time'] for f in data]
     return (x, y, t)
 
@@ -53,12 +56,12 @@ def make_interpolation_by_T(x, y, t):
     return interpolation
 
 
-def make_final_models(keys, origo='Right_Elbow'):
+def make_final_models(keys, origo='Right_Shoulder', scale='Right_Elbow'):
     models = {}
     for key in keys:
         interps = []
         for i in range(1, 18):
-            x_, y_, t_ = getdata(i, key=key, origo=origo)
+            x_, y_, t_ = getdata(i, key=key, origo=origo, scale=scale)
             interps.append(make_interpolation_by_L2(x_, y_, t_))
 
         models[key] = lambda p: sum(interp(p) for interp in interps) / len(
@@ -70,8 +73,7 @@ def make_final_models(keys, origo='Right_Elbow'):
 class FrameFollower:
     def __init__(self, keys, curves, radius=0.01, step=0.01):
         self._followers = {
-            key: Follower(curves[key], radius=radius, step=step)
-            for key in keys
+            key: Follower(curves[key], radius=radius, step=step) for key in keys
         }
         self._keys = keys
         self._current_state_idx = 0
@@ -97,8 +99,11 @@ class Follower:
 
     def test(self, point, state_idx):
         state = self._states[state_idx]
-        ok = np.linalg.norm(self._previous - point) > 0 and np.cross(
-            state - point, state - self._previous
-        ) / np.linalg.norm(self._previous - point) < self._radius
+        ok = (
+            np.linalg.norm(self._previous - point) > 0
+            and np.cross(state - point, state - self._previous)
+            / np.linalg.norm(self._previous - point)
+            < self._radius
+        )
         self._previous = point
         return (ok, state - self._previous)
