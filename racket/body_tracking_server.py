@@ -48,8 +48,11 @@ class BodyTrackingProtocol:
         for key in KEYS:
             pos = (to_pos(frame[key]) - to_pos(frame[ORIGO])) / scale
             points[key] = pos
-            pygame.gfxdraw.aacircle(
-                s, 250 + pos[0] * 200, 250 + pos[1] * 200, 10, (10, 10, 10)
+            pygame.draw.circle(
+                screen,
+                (0, 0, 0),
+                (int(250 + pos[0] * 200), int(250 + pos[1] * 200)),
+                10,
             )
 
         screen.blit(s, (0, 0))
