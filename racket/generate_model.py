@@ -2,12 +2,15 @@ import numpy as np
 import json
 
 
+def to_pos(json):
+    return np.array([json['x'], json['y']])
+
 def getdata(
     idx, key='Right_Wrist', origo='Right_Shoulder', scale='Right_Elbow'
 ):
     data = json.load(open(f'data/data-{idx}.json', 'r'))
     data = sorted(data, key=lambda f: f['time'])
-    scale = np.array([np.linalg.norm(f[scale] - f[origo]) for f in data])
+    scale = np.array([np.linalg.norm(to_pos(f[scale]) - to_pos(f[origo])) for f in data])
     y = np.array([(f[key]['y'] - f[origo]['y']) / scale for f in data]) / scale
     x = np.array([(f[key]['x'] - f[origo]['x']) / scale for f in data]) / scale
     t = [f['time'] - data[0]['time'] for f in data]
