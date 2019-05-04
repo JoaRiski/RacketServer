@@ -19,23 +19,19 @@ class BodyTrackingServer:
         self._feedback_server = feedback_server
 
         self._models = models.make_final_models(KEYS, origo=ORIGO)
-        self._followers = {
-            key: models.Follower(model) for key, model in self._models.items()
-        }
+        self._follower = models.FrameFollower(KEYS, self._models)
 
     async def handle(self, reader, writer):
         data = await reader.read(100)
         message = data.decode()
         frame = json.loads(message)
 
-        data = {}
-
+        points = {}
         for key in KEYS:
-            follower = self._followers[key]
             pos = to_pos(frame[key]) - to_pos(frame[ORIGO])
-            direction = follower.test(pos)
-            data[key] = direction
+            points[key] = pos
 
+        data = self._follower.test(points)
         await self._feedback_server.messages.put(data)
 
         writer.close()
