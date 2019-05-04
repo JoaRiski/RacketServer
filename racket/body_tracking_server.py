@@ -5,11 +5,15 @@ import generate_model as models
 ORIGO = 'Right_Shoulder'
 KEYS = ['Right_Elbow', 'Right_Wrist']
 
+def to_pos(json):
+    return np.array([json['x'], json['y']])
 
 class BodyTrackingServer:
-    def __init__(self, host, port):
+    def __init__(self, host, port, feedback_server):
         self.host = host
         self.port = port
+
+        self._feedback_server = feedback_server
 
         self._models = models.make_final_models(KEYS, origo=ORIGO)
         self._followers = {
@@ -21,7 +25,14 @@ class BodyTrackingServer:
         message = data.decode()
         frame = json.loads(message)
 
+        data = {}
 
+        for key in KEYS:
+            follower = self._followers[key]
+            direction = follower.test(to_pos(frame[key]))
+            data[key] = direction
+
+        self.feedback_server.messages.append(data)
 
         writer.close()
 
