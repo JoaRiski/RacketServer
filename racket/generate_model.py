@@ -14,7 +14,7 @@ def getdata(
     y = np.array([(f[key]['y'] - f[origo]['y']) / scale for f in data]) / scale
     x = np.array([(f[key]['x'] - f[origo]['x']) / scale for f in data]) / scale
     t = [f['time'] - data[0]['time'] for f in data]
-    return (x, y, t)
+    return (list(x), list(y), t)
 
 
 def make_interpolation_by_L2(x, y, t):
