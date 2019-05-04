@@ -88,6 +88,9 @@ class FrameFollower:
         }
         if all(ok for ok, _ in results.values()):
             self._current_state_idx += 1
+        step_count = 1 / step
+        if self._current_state_idx >= step_count:
+            self._current_state_idx -= step_count
         return results
 
 

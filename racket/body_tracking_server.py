@@ -31,6 +31,10 @@ class BodyTrackingProtocol:
         message = data.decode()
         frame = json.loads(message)
 
+        for key in KEYS:
+            if key not in frame:
+                return
+
         points = {}
         scale = np.linalg.norm(to_pos(frame[ORIGO]) - to_pos(frame[SCALE]))
         for key in KEYS:
