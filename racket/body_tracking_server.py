@@ -7,6 +7,10 @@ import pygame
 ORIGO = 'Right_Shoulder'
 SCALE = 'Right_Elbow'
 KEYS = ['Right_Elbow', 'Right_Wrist']
+COLORS = {
+    'Right_Elbow': (255, 0, 0),
+    'Right_Wrist': (0, 255, 0),
+}
 
 pygame.init()
 screen = pygame.display.set_mode((500, 500))
@@ -50,11 +54,12 @@ class BodyTrackingProtocol:
             points[key] = pos
             pygame.draw.circle(
                 screen,
-                (0, 0, 0),
-                (int(250 + pos[0] * 200), int(250 + pos[1] * 200)),
+                COLORS[key],
+                (int(500 + pos[0] * 200), int(300 - pos[1] * 200)),
                 10,
             )
 
+        screen.fill((255, 255, 255, 128))
         screen.blit(s, (0, 0))
         pygame.display.flip()
 
