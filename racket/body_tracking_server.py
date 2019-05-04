@@ -42,7 +42,8 @@ class BodyTrackingProtocol:
 
     @staticmethod
     async def main(loop, feedback_server):
+        import os
         transport, _ = await loop.create_datagram_endpoint(
             lambda: BodyTrackingProtocol(feedback_server),
-            local_addr=("10.100.44.218", 8888),
+            local_addr=(os.environ["UDP_IP"], 8888),
         )
