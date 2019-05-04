@@ -22,7 +22,7 @@ class BodyTrackingServer:
         self._follower = models.FrameFollower(KEYS, self._models)
 
     async def handle(self, reader, writer):
-        data = await reader.read(100)
+        data = await reader.read()
         message = data.decode()
         frame = json.loads(message)
 
