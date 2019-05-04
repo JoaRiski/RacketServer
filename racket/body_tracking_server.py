@@ -36,7 +36,6 @@ class BodyTrackingProtocol:
             points[key] = pos
 
         data = self._follower.test(points)
-        print(f"Got data: {data}")
         await self._feedback_server.messages.put(data)
 
     @staticmethod
@@ -45,9 +44,3 @@ class BodyTrackingProtocol:
             lambda: BodyTrackingProtocol(feedback_server),
             local_addr=("10.100.44.218", 8888),
         )
-
-        # try:
-        #     print('Record server running at port 8888')
-        #     await asyncio.sleep(3600)
-        # finally:
-        #     transport.close()

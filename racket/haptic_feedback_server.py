@@ -13,17 +13,27 @@ class HapticFeedbackServer:
     async def handle(self, reader, writer):
         addr = writer.get_extra_info("peername")
         print(f"Received a new connection from {addr}")
+        self.messages = asyncio.Queue()
 
-        for i in range(20):
+        while True:
             message = await self.messages.get()
 
-            print(message)
+            # print(message)
 
-            writer.write(message)
-            # writer.write(bytes([255, 255 ,255 ,255 ,255 ,255 ,255 ,255]))
+            data = bytes([
+                0,
+                0,
+                0,
+                0,
+                0,
+                255 if message["Right_Elbow"][0] is False else 0,
+                255 if message["Right_Wrist"][0] is False else 0,
+                0,
+            ])
+            writer.write(data)
+            print(f"Sending {data}")
 
             await writer.drain()
-            await asyncio.sleep(1)
 
         print("Closes a client socket")
         writer.close()
