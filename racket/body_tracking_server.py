@@ -4,6 +4,7 @@ from . import generate_model as models
 import numpy as np
 
 ORIGO = 'Right_Shoulder'
+SCALE = 'Right_Elbow'
 KEYS = ['Right_Elbow', 'Right_Wrist']
 
 
@@ -31,8 +32,9 @@ class BodyTrackingProtocol:
         frame = json.loads(message)
 
         points = {}
+        scale = np.linalg.norm(to_pos(frame[ORIGO] - frame[SCALE]))
         for key in KEYS:
-            pos = to_pos(frame[key]) - to_pos(frame[ORIGO])
+            pos = (to_pos(frame[key]) - to_pos(frame[ORIGO])) / scale
             points[key] = pos
 
         data = self._follower.test(points)
