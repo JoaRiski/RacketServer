@@ -71,7 +71,7 @@ class FrameFollower:
     def __init__(self, keys, curves, radius=0.01, step=0.01):
         self._followers = {
             key: Follower(curves[key], radius=radius, step=step)
-            for key in range(keys)
+            for key in keys
         }
         self._keys = keys
         self._current_state_idx = 0
