@@ -114,7 +114,7 @@ class Follower:
         try:
             state = self._states[state_idx]
             ok = (
-                np.linalg.norm(self._previous - point) < self._radius
+                np.linalg.norm(state - point) < self._radius
             )
 
             return (ok, state -  point)
