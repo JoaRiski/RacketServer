@@ -20,7 +20,7 @@ class HapticFeedbackServer:
 
         while True:
             message = await self.messages.get()
-            # print(message)
+
             data = bytes([
                 255 if should_es(message, 'Right_Elbow', up=False) else 0,
                 255 if should_es(message, 'Right_Elbow', up=True) else 0,
