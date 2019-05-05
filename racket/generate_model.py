@@ -69,20 +69,10 @@ class FrameFollower:
         self._current_state_idx = 0
 
     def test(self, points):
-        do_while = True
-        while do_while:
-            results = {
-                key: follower.test(points[key], self._current_state_idx)
-                for key, follower in self._followers.items()
-            }
-            all_ok = all(ok for ok, _, _ in results.values())
-            if all_ok:
-                self._current_state_idx += 1
-            step_count = 1 / self.step
-            if self._current_state_idx >= step_count:
-                self._current_state_idx = 0
-            do_while = all_ok
-        return results
+        data = {}
+        for key, f in self._followers.items():
+            data[key] = f.test(points[key])
+        return data
 
 
 class Follower:
@@ -95,25 +85,20 @@ class Follower:
 
         self._previous = []
 
-    def test(self, point, state_idx):
-        try:
-            self._previous.append(point)
-            if len(self._previous) > 10:
-                self._previous.pop(0)
-            for point in self._previous:
-                state = self._states[state_idx]
-                norm = np.linalg.norm(state - point)
-                ok = norm < self._radius
-                es = norm < self._es_radius
-                if ok:
-                    break
-            return (ok, state - point, es)
-        except Exception as e:
-            import traceback
+    def test(self, point):
+        min_dist = float('inf')
+        min_point = None
+        for state in self._states:
+            norm = np.linalg.norm(point - state)
+            if norm < self._es_radius:
+                self._states.remove(point)
+                return (True, None, True)
+            if norm < min_dist:
+                min_dist = norm
+                min_point = point
+        else:
+            return (False, min_point - point, False)
 
-            traceback.print_exc()
-            print(state_idx)
-            print(len(self._states))
 
     def __repr__(self):
         return str(vars(self))
