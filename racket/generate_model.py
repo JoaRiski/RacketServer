@@ -46,7 +46,7 @@ def make_final_models(keys, origo, scale):
     models = {}
     for key in keys:
         interps = []
-        for i in range(0, 8):
+        for i in range(0, 10):
             x_, y_, t_ = getdata(i, key=key, origo=origo, scale=scale)
             interps.append(make_interpolation_by_L2(x_, y_, t_))
 
@@ -60,7 +60,7 @@ def make_final_models(keys, origo, scale):
 
 
 class FrameFollower:
-    def __init__(self, keys, curves, radius, es_radius, step=0.01):
+    def __init__(self, keys, curves, radius, es_radius, step=0.001):
         self.step = step
         self._followers = {
             key: Follower(curves[key], radius=radius, es_radius=es_radius, step=step)
@@ -86,21 +86,27 @@ class FrameFollower:
 
 
 class Follower:
-    def __init__(self, curve, radius, es_radius, step=0.01):
+    def __init__(self, curve, radius, es_radius, step=0.001):
         _params = np.arange(0, 1, step) + step
         self._states = [curve(p) for p in _params]
 
         self._radius = radius
         self._es_radius = es_radius
 
-        self._previous = np.array([0, 0])
+        self._previous = []
 
     def test(self, point, state_idx):
         try:
-            state = self._states[state_idx]
-            norm = np.linalg.norm(state - point)
-            ok = norm < self._radius
-            es = norm < self._es_radius
+            self._previous.append(point)
+            if len(self._previous) > 10:
+                self._previous.pop(0)
+            for point in self._previous:
+                state = self._states[state_idx]
+                norm = np.linalg.norm(state - point)
+                ok = norm < self._radius
+                es = norm < self._es_radius
+                if ok:
+                    break
             return (ok, state - point, es)
         except Exception as e:
             import traceback

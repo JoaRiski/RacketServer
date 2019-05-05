@@ -7,13 +7,13 @@ import pygame
 ORIGO = 'Right_Shoulder'
 SCALE = 'Body_Center'
 KEYS = ['Right_Elbow', 'Right_Wrist']
-COLORS = {'Right_Elbow': (255, 0, 0), 'Right_Wrist': (0, 255, 0)}
+COLORS = {'Right_Elbow': (255, 150, 150), 'Right_Wrist': (0, 255, 0)}
 
 SCREEN_SIZE = 800
 CTR = int(SCREEN_SIZE / 2)
 
-RADIUS = 0.08
-ES_RADIUS = 0.12
+RADIUS = 0.15
+ES_RADIUS = 0.18
 
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_SIZE, SCREEN_SIZE))
@@ -81,26 +81,25 @@ class BodyTrackingProtocol:
         scale = np.linalg.norm(to_pos(frame[SCALE]) - to_pos(frame[ORIGO]))
 
         for key in KEYS:
-            unscaled_pos = (to_pos(frame[key]) - to_pos(frame[ORIGO]))
             pos = (to_pos(frame[key]) - to_pos(frame[ORIGO])) / scale
             points[key] = pos
             pygame.draw.circle(
                 screen,
                 COLORS[key],
-                (int(CTR + unscaled_pos[0] * CTR), int(CTR - unscaled_pos[1] * CTR)),
+                (int(CTR + pos[0] * CTR), int(CTR - pos[1] * CTR)),
                 int(RADIUS * CTR),
                 2,
             )
             pygame.draw.circle(
                 screen,
                 COLORS[key],
-                (int(CTR + unscaled_pos[0] * CTR), int(CTR - unscaled_pos[1] * CTR)),
+                (int(CTR + pos[0] * CTR), int(CTR - pos[1] * CTR)),
                 int(ES_RADIUS * CTR),
                 2,
             )
 
         step_count = 1 / self._follower.step
-        _current_state_idx = self._follower._current_state_idx + 1
+        _current_state_idx = self._follower._current_state_idx
         if _current_state_idx >= step_count:
             _current_state_idx = 0
         for follower in self._follower._followers.values():
@@ -109,8 +108,8 @@ class BodyTrackingProtocol:
                 screen,
                 (0, 0, 0),
                 (int(CTR + state[0] * CTR), int(CTR - state[1] * CTR)),
-                int(5),
-                2,
+                int(8),
+                6,
             )
 
         screen.blit(s, (0, 0))
