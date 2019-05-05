@@ -114,15 +114,10 @@ class Follower:
         try:
             state = self._states[state_idx]
             ok = (
-                np.linalg.norm(self._previous - point) > 0
-                and np.linalg.norm(
-                    np.cross(state - point, state - self._previous)
-                )
-                / np.linalg.norm(self._previous - point)
-                < self._radius
+                np.linalg.norm(self._previous - point) < self._radius
             )
-            self._previous = point
-            return (ok, state - self._previous)
+
+            return (ok, state -  point)
         except Exception as e:
             import traceback
 
