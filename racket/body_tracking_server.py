@@ -98,6 +98,19 @@ class BodyTrackingProtocol:
                 2,
             )
 
+        data = self._follower.test(points)
+        for key in KEYS:
+            if not data[key][0]:
+                pos = points[key]
+                pygame.draw.circle(
+                    screen,
+                    COLORS[key],
+                    (int(CTR + pos[0] * CTR), int(CTR - pos[1] * CTR)),
+                    int(RADIUS * CTR),
+                )
+
+
+
         step_count = 1 / self._follower.step
         _current_state_idx = self._follower._current_state_idx
         if _current_state_idx >= step_count:
@@ -115,7 +128,6 @@ class BodyTrackingProtocol:
         screen.blit(s, (0, 0))
         pygame.display.flip()
 
-        data = self._follower.test(points)
         await self._feedback_server.messages.put(data)
 
     @staticmethod
