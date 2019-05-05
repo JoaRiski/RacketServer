@@ -50,9 +50,14 @@ def make_final_models(keys, origo, scale):
             x_, y_, t_ = getdata(i, key=key, origo=origo, scale=scale)
             interps.append(make_interpolation_by_L2(x_, y_, t_))
 
-        models[key] = lambda p: sum(interp(p) for interp in interps) / len(
-            interps
-        )
+        def get_get_point(interps):
+            def get_point(p):
+                return sum([interp(p) for interp in interps]) / len(
+                    interps
+                )
+            return get_point
+
+        models[key] = get_get_point(interps)
     return models
 
 
@@ -62,7 +67,6 @@ class FrameFollower:
         self._followers = {
             key: Follower(curves[key], radius=radius, step=step) for key in keys
         }
-        self._keys = keys
         self._current_state_idx = 0
 
     def test(self, points):
@@ -95,10 +99,13 @@ class Follower:
                 np.linalg.norm(state - point) < self._radius
             )
 
-            return (ok, state -  point)
+            return (ok, state - point)
         except Exception as e:
             import traceback
 
             traceback.print_exc()
             print(state_idx)
             print(len(self._states))
+
+    def __repr__(self):
+        return str(vars(self))

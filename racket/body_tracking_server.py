@@ -43,6 +43,11 @@ class BodyTrackingProtocol:
                     2 if idx == self._follower._current_state_idx else 0
                 )
 
+        print(self._models[KEYS[0]](0.9))
+        print(self._models[KEYS[1]](0.9))
+        # print(len(self._follower._followers))
+        # print(self._follower._followers)
+
     def connection_made(self, transport):
         self.transport = transport
 
