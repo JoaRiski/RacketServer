@@ -5,12 +5,9 @@ import numpy as np
 import pygame
 
 ORIGO = 'Right_Shoulder'
-SCALE = 'Right_Elbow'
+SCALE = 'Body_Center'
 KEYS = ['Right_Elbow', 'Right_Wrist']
-COLORS = {
-    'Right_Elbow': (255, 0, 0),
-    'Right_Wrist': (0, 255, 0),
-}
+COLORS = {'Right_Elbow': (255, 0, 0), 'Right_Wrist': (0, 255, 0)}
 
 pygame.init()
 screen = pygame.display.set_mode((500, 500))
@@ -23,6 +20,7 @@ pygame.display.flip()
 
 def to_pos(json):
     return np.array([json['x'], json['y']])
+
 
 class BodyTrackingProtocol:
     def __init__(self, feedback_server):
@@ -48,6 +46,7 @@ class BodyTrackingProtocol:
                 return
 
         points = {}
+        screen.fill((255, 255, 255))
         scale = np.linalg.norm(to_pos(frame[ORIGO]) - to_pos(frame[SCALE]))
         for key in KEYS:
             pos = (to_pos(frame[key]) - to_pos(frame[ORIGO])) / scale
@@ -59,7 +58,17 @@ class BodyTrackingProtocol:
                 10,
             )
 
-        screen.fill((255, 255, 255, 128))
+        for key, f in self._follower._followers.items():
+            for idx, state in enumerate(f._states):
+                pygame.draw.circle(
+                    screen,
+                    COLORS[key],
+                    (int(500 + state[0] * 200), int(300 - state[1] * 200)),
+                    5,
+                    2 if idx == self._follower._current_state_idx else 0
+                )
+
+
         screen.blit(s, (0, 0))
         pygame.display.flip()
 

@@ -11,8 +11,8 @@ def getdata(
     data = json.load(open(f'data/data-{idx}.json', 'r'))
     data = sorted(data, key=lambda f: f['time'])
     scale = np.array([np.linalg.norm(to_pos(f[scale]) - to_pos(f[origo])) for f in data])
-    y = np.array([(f[key]['y'] - f[origo]['y']) for f in data]) / scale
     x = np.array([(f[key]['x'] - f[origo]['x']) for f in data]) / scale
+    y = np.array([(f[key]['y'] - f[origo]['y']) for f in data]) / scale
     t = [f['time'] - data[0]['time'] for f in data]
     return (x, y, t)
 
