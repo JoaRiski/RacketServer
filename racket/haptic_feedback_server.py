@@ -1,6 +1,9 @@
 import random
 import asyncio
 
+def should_es(message, key, up):
+    ok = message[key][1][1] > 0 if up else message[key][1][1] < 0
+    return not message[key][2] and ok
 
 class HapticFeedbackServer:
 
@@ -19,14 +22,14 @@ class HapticFeedbackServer:
             message = await self.messages.get()
             # print(message)
             data = bytes([
-                0 if message["Right_Elbow"][2] else 255,
-                0 if message["Right_Elbow"][2] else 255,
+                255 if should_es(message, 'Right_Elbow', up=False) else 0,
+                255 if should_es(message, 'Right_Elbow', up=True) else 0,
                 0,
                 0,
                 0,
                 0,
-                0 if message["Right_Wrist"][2] else 255,
-                0 if message["Right_Wrist"][2] else 255,
+                255 if should_es(message, 'Right_Wrist', up=False) else 0,
+                255 if should_es(message, 'Right_Wrist', up=True) else 0,
             ])
             writer.write(data)
 

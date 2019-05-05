@@ -52,9 +52,7 @@ def make_final_models(keys, origo, scale):
 
         def get_get_point(interps):
             def get_point(p):
-                return sum([interp(p) for interp in interps]) / len(
-                    interps
-                )
+                return sum([interp(p) for interp in interps]) / len(interps)
             return get_point
 
         models[key] = get_get_point(interps)
