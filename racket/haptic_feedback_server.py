@@ -19,14 +19,14 @@ class HapticFeedbackServer:
             message = await self.messages.get()
             # print(message)
             data = bytes([
-                0 if message["Right_Elbow"][0] else 255,
-                0 if message["Right_Elbow"][0] else 255,
+                0 if message["Right_Elbow"][2] else 255,
+                0 if message["Right_Elbow"][2] else 255,
                 0,
                 0,
                 0,
                 0,
-                0 if message["Right_Wrist"][0] else 255,
-                0 if message["Right_Wrist"][0] else 255,
+                0 if message["Right_Wrist"][2] else 255,
+                0 if message["Right_Wrist"][2] else 255,
             ])
             writer.write(data)
 

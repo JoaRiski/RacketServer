@@ -9,10 +9,14 @@ SCALE = 'Body_Center'
 KEYS = ['Right_Elbow', 'Right_Wrist']
 COLORS = {'Right_Elbow': (255, 0, 0), 'Right_Wrist': (0, 255, 0)}
 
-RADIUS = 0.2
+SCREEN_SIZE = 800
+CTR = int(SCREEN_SIZE / 2)
+
+RADIUS = 0.08
+ES_RADIUS = 0.12
 
 pygame.init()
-screen = pygame.display.set_mode((800, 800))
+screen = pygame.display.set_mode((SCREEN_SIZE, SCREEN_SIZE))
 screen.fill((255, 255, 255))
 s = pygame.Surface(screen.get_size(), pygame.SRCALPHA, 32)
 follower_s = pygame.Surface(screen.get_size(), pygame.SRCALPHA, 32)
@@ -31,22 +35,25 @@ class BodyTrackingProtocol:
         self._feedback_server = feedback_server
 
         self._models = models.make_final_models(KEYS, origo=ORIGO, scale=SCALE)
-        self._follower = models.FrameFollower(KEYS, self._models, radius=RADIUS)
+        self._follower = models.FrameFollower(
+            keys=KEYS,
+            curves=self._models,
+            radius=RADIUS,
+            es_radius=ES_RADIUS
+        )
 
         for key, f in self._follower._followers.items():
             for idx, state in enumerate(f._states):
                 pygame.draw.circle(
                     follower_s,
                     COLORS[key],
-                    (int(400 + state[0] * 400), int(400 - state[1] * 400)),
+                    (int(CTR + state[0] * CTR), int(CTR - state[1] * CTR)),
                     5,
                     2 if idx == self._follower._current_state_idx else 0
                 )
 
-        print(self._models[KEYS[0]](0.9))
-        print(self._models[KEYS[1]](0.9))
-        # print(len(self._follower._followers))
-        # print(self._follower._followers)
+        # print(self._models[KEYS[0]](0.9))
+        # print(self._models[KEYS[1]](0.9))
 
     def connection_made(self, transport):
         self.transport = transport
@@ -80,11 +87,17 @@ class BodyTrackingProtocol:
             pygame.draw.circle(
                 screen,
                 COLORS[key],
-                (int(400 + unscaled_pos[0] * 400), int(400 - unscaled_pos[1] * 400)),
-                int(RADIUS * 400),
+                (int(CTR + unscaled_pos[0] * CTR), int(CTR - unscaled_pos[1] * CTR)),
+                int(RADIUS * CTR),
                 2,
             )
-
+            pygame.draw.circle(
+                screen,
+                COLORS[key],
+                (int(CTR + unscaled_pos[0] * CTR), int(CTR - unscaled_pos[1] * CTR)),
+                int(ES_RADIUS * CTR),
+                2,
+            )
 
         step_count = 1 / self._follower.step
         _current_state_idx = self._follower._current_state_idx + 1
@@ -95,7 +108,7 @@ class BodyTrackingProtocol:
             pygame.draw.circle(
                 screen,
                 (0, 0, 0),
-                (int(400 + state[0] * 400), int(400 - state[1] * 400)),
+                (int(CTR + state[0] * CTR), int(CTR - state[1] * CTR)),
                 int(5),
                 2,
             )
