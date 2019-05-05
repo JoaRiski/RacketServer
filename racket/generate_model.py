@@ -83,7 +83,6 @@ class FrameFollower:
             step_count = 1 / self.step
             if self._current_state_idx >= step_count:
                 self._current_state_idx = 0
-            print(f"Current index: {self._current_state_idx}")
             do_while = all_ok
         return results
 
