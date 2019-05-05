@@ -88,10 +88,10 @@ class Follower:
     def test(self, point):
         min_dist = float('inf')
         min_point = None
-        for state in self._states:
+        for idx, state in enumerate(self._states):
             norm = np.linalg.norm(point - state)
             if norm < self._es_radius:
-                self._states.remove(point)
+                #self._states.remove(state)
                 return (True, None, True)
             if norm < min_dist:
                 min_dist = norm
