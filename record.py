@@ -1,3 +1,4 @@
+import os
 import asyncio
 import json
 
@@ -27,9 +28,11 @@ class RecordProtocol:
         self.transport.sendto(data, addr)
 
 async def main():
+    if not os.path.exists("data"):
+        os.makedirs("data")
     loop = asyncio.get_running_loop()
     transport, _ = await loop.create_datagram_endpoint(
-        RecordProtocol, local_addr=("10.100.41.154", 8888)
+        RecordProtocol, local_addr=(os.environ["UDP_IP"], 8888)
     )
 
     try:
