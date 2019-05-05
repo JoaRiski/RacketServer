@@ -5,14 +5,19 @@ import json
 def to_pos(json):
     return np.array([json['x'], json['y']])
 
+
 def getdata(
     idx, key='Right_Wrist', origo='Right_Shoulder', scale='Right_Elbow'
 ):
     data = json.load(open(f'data/data-{idx}.json', 'r'))
     data = sorted(data, key=lambda f: f['time'])
-    scale = np.array([np.linalg.norm(to_pos(f[scale]) - to_pos(f[origo])) for f in data])
-    x = np.array([(f[key]['x'] - f[origo]['x']) for f in data]) / scale
-    y = np.array([(f[key]['y'] - f[origo]['y']) for f in data]) / scale
+    scale_ = np.array(
+        [np.linalg.norm(to_pos(f[scale]) - to_pos(f[origo])) for f in data]
+    )
+    #print(scale_)
+    y = np.array([(f[key]['y'] - f[origo]['y']) for f in data]) / scale_
+    x = np.array([(f[key]['x'] - f[origo]['x']) for f in data]) / scale_
+    #print(x, y)
     t = [f['time'] - data[0]['time'] for f in data]
     return (x, y, t)
 
@@ -110,7 +115,9 @@ class Follower:
             state = self._states[state_idx]
             ok = (
                 np.linalg.norm(self._previous - point) > 0
-                and np.cross(state - point, state - self._previous)
+                and np.linalg.norm(
+                    np.cross(state - point, state - self._previous)
+                )
                 / np.linalg.norm(self._previous - point)
                 < self._radius
             )
@@ -118,6 +125,7 @@ class Follower:
             return (ok, state - self._previous)
         except Exception as e:
             import traceback
+
             traceback.print_exc()
             print(state_idx)
             print(len(self._states))

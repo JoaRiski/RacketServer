@@ -27,7 +27,7 @@ class BodyTrackingProtocol:
         self._feedback_server = feedback_server
 
         self._models = models.make_final_models(KEYS, origo=ORIGO)
-        self._follower = models.FrameFollower(KEYS, self._models)
+        self._follower = models.FrameFollower(KEYS, self._models, radius=0.1)
 
     def connection_made(self, transport):
         self.transport = transport
@@ -39,7 +39,11 @@ class BodyTrackingProtocol:
 
     async def _datagram_received(self, data, addr):
         message = data.decode()
-        frame = json.loads(message)
+
+        try:
+            frame = json.loads(message)
+        except Exception:
+            return
 
         for key in KEYS:
             if key not in frame:
@@ -47,7 +51,8 @@ class BodyTrackingProtocol:
 
         points = {}
         screen.fill((255, 255, 255))
-        scale = np.linalg.norm(to_pos(frame[ORIGO]) - to_pos(frame[SCALE]))
+        scale = np.linalg.norm(to_pos(frame[SCALE]) - to_pos(frame[ORIGO]))
+        #print(scale)
         for key in KEYS:
             pos = (to_pos(frame[key]) - to_pos(frame[ORIGO])) / scale
             points[key] = pos
@@ -56,18 +61,19 @@ class BodyTrackingProtocol:
                 COLORS[key],
                 (int(500 + pos[0] * 200), int(300 - pos[1] * 200)),
                 10,
+                2,
             )
 
         for key, f in self._follower._followers.items():
             for idx, state in enumerate(f._states):
                 pygame.draw.circle(
                     screen,
-                    COLORS[key],
+                    COLORS[key]
+                    if idx == self._follower._current_state_idx
+                    else (0, 0, 0),
                     (int(500 + state[0] * 200), int(300 - state[1] * 200)),
                     5,
-                    2 if idx == self._follower._current_state_idx else 0
                 )
-
 
         screen.blit(s, (0, 0))
         pygame.display.flip()
